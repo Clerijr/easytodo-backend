@@ -1,3 +1,6 @@
+const { PrismaClient } = require('@prisma/client')
+
+const prisma = new PrismaClient()
 const express = require('express')
 const cors = require('cors')
 const helmet = require('helmet')
@@ -7,12 +10,21 @@ server.use(cors())
 server.use(helmet())
 server.use(express.json())
 
+async function getAllData() {
+    const allData = await prisma.tasks.findMany();
+    return allData;
+}
+
+
 server.get('/', (req, res) => {
     res.send('Hello World')
 })
 
-server.get('/todos', (req, res) => {
+server.get('/todos', async (req, res) => {
     //GET all todos
+    return getAllData().then(data => {
+        return res.send(data)
+    })
 })
 
 server.get('/todos/id', (req, res) => {
@@ -23,8 +35,17 @@ server.patch('/todos/:id', (req, res) => {
     //PATCH todo by id
 })
 
-server.post('/todos', (req, res) => {
+server.post('/todos', async (req, res) => {
     //POST todo
+    try {
+        await prisma.tasks.create({
+            data: req.body
+        }).then(data => {
+            return res.send('Created' + data)
+        })
+    } catch (error) {
+        console.log(error)
+    }
 })
 
 server.put('/todos/:id', (req, res) => {
