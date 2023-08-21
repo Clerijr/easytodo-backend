@@ -17,43 +17,77 @@ async function getAllData() {
 
 
 server.get('/', (req, res) => {
-    res.send('Hello World')
+    res.send('welcome, easytodo-backend')
 })
 
-server.get('/todos', async (req, res) => {
-    //GET all todos
-    return getAllData().then(data => {
-        return res.send(data)
-    })
-})
-
-server.get('/todos/id', (req, res) => {
-    //GET todo by id
-})
-
-server.patch('/todos/:id', (req, res) => {
-    //PATCH todo by id
-})
-
+//POST todo
 server.post('/todos', async (req, res) => {
-    //POST todo
     try {
         await prisma.tasks.create({
             data: req.body
         }).then(data => {
-            return res.send('Created' + data)
+            return res.send('Success')
         })
     } catch (error) {
         console.log(error)
     }
 })
 
-server.put('/todos/:id', (req, res) => {
-    //UPDATE todo
+//GET all todos
+server.get('/todos', async (req, res) => {
+    return getAllData().then(data => {
+        return res.send(data)
+    })
 })
 
-server.delete('/todos/:id', (req, res) => {
-    //DELETE todo
+//GET todo by id
+server.get('/todos/:id', async (req, res) => {
+    const { id } = req.params
+    const task = await prisma.tasks.findUnique({
+        where: {
+            id: Number(id)
+        }
+    })
+    return res.send(task)
+})
+
+// Check necessity of patch and put here, maybe for more advanced features only, not for now
+//PATCH todo by id
+server.patch('/todos/:id', async (req, res) => {
+    const { id } = req.params
+    return await prisma.tasks.update({
+        where: {
+            id: Number(id)
+        },
+        data: req.body
+    }).then(data => {
+        return res.send('Success')
+    })
+})
+
+//UPDATE todo
+server.put('/todos/:id', async (req, res) => {
+    const { id } = req.params
+    return await prisma.tasks.update({
+        where: {
+            id: Number(id)
+        },
+        data: req.body
+    }).then(data => {
+        return res.send('Success')
+    })
+})
+
+//DELETE todo
+server.delete('/todos/:id', async (req, res) => {
+    const { id } = req.params
+    return await prisma.tasks.delete({
+        where: {
+            id: Number(id)
+        }
+    }).then(data => {
+        return res.send('Success')
+    })
 })
 
 module.exports = server
