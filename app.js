@@ -4,11 +4,11 @@ const prisma = new PrismaClient()
 const express = require('express')
 const cors = require('cors')
 const helmet = require('helmet')
-const server = express()
+const app = express()
 
-server.use(cors())
-server.use(helmet())
-server.use(express.json())
+app.use(cors())
+app.use(helmet())
+app.use(express.json())
 
 async function getAllData() {
     const allData = await prisma.tasks.findMany();
@@ -16,12 +16,12 @@ async function getAllData() {
 }
 
 
-server.get('/', (req, res) => {
+app.get('/', (req, res) => {
     res.send('welcome, easytodo-backend')
 })
 
 //POST todo
-server.post('/todos', async (req, res) => {
+app.post('/todos', async (req, res) => {
     try {
         await prisma.tasks.create({
             data: req.body
@@ -34,14 +34,14 @@ server.post('/todos', async (req, res) => {
 })
 
 //GET all todos
-server.get('/todos', async (req, res) => {
+app.get('/todos', async (req, res) => {
     return getAllData().then(data => {
         return res.send(data)
     })
 })
 
 //GET todo by id
-server.get('/todos/:id', async (req, res) => {
+app.get('/todos/:id', async (req, res) => {
     const { id } = req.params
     const task = await prisma.tasks.findUnique({
         where: {
@@ -53,7 +53,7 @@ server.get('/todos/:id', async (req, res) => {
 
 // Check necessity of patch and put here, maybe for more advanced features only, not for now
 //PATCH todo by id
-server.patch('/todos/:id', async (req, res) => {
+app.patch('/todos/:id', async (req, res) => {
     const { id } = req.params
     return await prisma.tasks.update({
         where: {
@@ -66,7 +66,7 @@ server.patch('/todos/:id', async (req, res) => {
 })
 
 //UPDATE todo
-server.put('/todos/:id', async (req, res) => {
+app.put('/todos/:id', async (req, res) => {
     const { id } = req.params
     return await prisma.tasks.update({
         where: {
@@ -79,7 +79,7 @@ server.put('/todos/:id', async (req, res) => {
 })
 
 //DELETE todo
-server.delete('/todos/:id', async (req, res) => {
+app.delete('/todos/:id', async (req, res) => {
     const { id } = req.params
     return await prisma.tasks.delete({
         where: {
@@ -90,4 +90,4 @@ server.delete('/todos/:id', async (req, res) => {
     })
 })
 
-module.exports = server
+module.exports = app
