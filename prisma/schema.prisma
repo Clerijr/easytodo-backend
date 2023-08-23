@@ -8,10 +8,20 @@ datasource db {
   relationMode = "prisma"
 }
 
-
-
-model tasks {
+model task {
   id Int @id @default(autoincrement())
   user String
+  card String
   description String @db.Text()
+}
+
+model user {
+  id Int @id @default(autoincrement())
+  name String
+  email String
+}
+
+model card {
+  id Int @id @default(autoincrement())
+  user String
 }
