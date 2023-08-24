@@ -35,6 +35,7 @@ app.post('/todos', async (req, res) => {
 
 //GET all todos
 app.get('/todos', async (req, res) => {
+    res.set('Access-Control-Allow-Origin', '*')
     return getAllData().then(data => {
         return res.send(data)
     })
