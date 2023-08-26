@@ -10,8 +10,8 @@ datasource db {
 
 model task {
   id Int @id @default(autoincrement())
-  user String
-  card String
+  user String @default("anonymous")
+  card String?
   description String @db.Text()
 }
 

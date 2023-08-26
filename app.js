@@ -10,12 +10,6 @@ app.use(cors())
 app.use(helmet())
 app.use(express.json())
 
-async function getAllData() {
-    const allData = await prisma.tasks.findMany();
-    return allData;
-}
-
-
 app.get('/', (req, res) => {
     res.send('welcome, easytodo-backend')
 })
@@ -23,7 +17,7 @@ app.get('/', (req, res) => {
 //POST todo
 app.post('/todos', async (req, res) => {
     try {
-        await prisma.tasks.create({
+        await prisma.task.create({
             data: req.body
         }).then(data => {
             return res.send('Success')
@@ -35,20 +29,27 @@ app.post('/todos', async (req, res) => {
 
 //GET all todos
 app.get('/todos', async (req, res) => {
-    res.set('Access-Control-Allow-Origin', '*')
-    return getAllData().then(data => {
-        return res.send(data)
-    })
+    //res.set('Access-Control-Allow-Origin', '*')
+    try {
+        const allData = await prisma.task.findMany();
+        res.json(allData);
+      } catch (error) {
+        console.error('Error retrieving data:', error);
+        res.status(500).json({ error: 'Internal server error' });
+      }
 })
 
 //GET todo by id
 app.get('/todos/:id', async (req, res) => {
     const { id } = req.params
-    const task = await prisma.tasks.findUnique({
+    const task = await prisma.task.findUnique({
         where: {
             id: Number(id)
         }
     })
+    if(!task) {
+        return res.status(404).send('Not found')
+    }
     return res.send(task)
 })
 
@@ -56,7 +57,7 @@ app.get('/todos/:id', async (req, res) => {
 //PATCH todo by id
 app.patch('/todos/:id', async (req, res) => {
     const { id } = req.params
-    return await prisma.tasks.update({
+    return await prisma.task.update({
         where: {
             id: Number(id)
         },
@@ -69,7 +70,7 @@ app.patch('/todos/:id', async (req, res) => {
 //UPDATE todo
 app.put('/todos/:id', async (req, res) => {
     const { id } = req.params
-    return await prisma.tasks.update({
+    return await prisma.task.update({
         where: {
             id: Number(id)
         },
@@ -82,7 +83,7 @@ app.put('/todos/:id', async (req, res) => {
 //DELETE todo
 app.delete('/todos/:id', async (req, res) => {
     const { id } = req.params
-    return await prisma.tasks.delete({
+    return await prisma.task.delete({
         where: {
             id: Number(id)
         }
